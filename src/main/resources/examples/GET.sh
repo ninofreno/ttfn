@@ -1,4 +1,4 @@
 #!/bin/sh
 
-curl http://localhost:10080/statistics
+curl -s http://localhost:10080/statistics | jq -S .
 

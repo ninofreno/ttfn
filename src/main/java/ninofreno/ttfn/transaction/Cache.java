@@ -27,6 +27,7 @@ public class Cache {
     public Cache(long duration) {
 
         this.duration = duration;
+        LOGGER.info("Set sliding window for statistics calculation to {} milliseconds.", duration);
         timestamps2stats = new ConcurrentSkipListMap<>();
 
         new CacheCleaner().start();

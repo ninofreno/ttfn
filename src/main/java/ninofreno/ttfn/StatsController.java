@@ -30,7 +30,12 @@ public class StatsController {
     public ResponseEntity<TransactionDto> transactions(@RequestBody final TransactionDto transaction) {
 
         LOGGER.debug("Received request at /transactions");
-        transactionCache.update(transaction);
+        try {
+            transactionCache.update(transaction);
+        } catch (IllegalArgumentException e) {
+            LOGGER.warn(e.getMessage());
+            return new ResponseEntity<>(HttpStatus.PRECONDITION_FAILED);
+        }
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 

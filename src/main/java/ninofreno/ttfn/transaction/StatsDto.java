@@ -20,23 +20,23 @@ public class StatsDto {
         count = 1;
     }
 
-    double getMin() {
+    public double getMin() {
         return min;
     }
 
-    double getMax() {
+    public double getMax() {
         return max;
     }
 
-    double getSum() {
+    public double getSum() {
         return sum;
     }
 
-    double getAvg() {
+    public double getAvg() {
         return count == 0 ? 0 : sum / count;
     }
 
-    long getCount() {
+    public long getCount() {
         return count;
     }
 
@@ -54,7 +54,7 @@ public class StatsDto {
 
     public static StatsDto reduce(StatsDto stats, StatsDto otherStats) {
         return new Builder().withMin(Math.min(stats.min, otherStats.min)).withMax(Math.max(stats.max, otherStats.max))
-                .withCount(stats.count + otherStats.count).build();
+                .withSum(stats.sum + otherStats.sum).withCount(stats.count + otherStats.count).build();
     }
 
     public static class Builder {

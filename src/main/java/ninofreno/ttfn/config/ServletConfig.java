@@ -9,10 +9,15 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+
 @Configuration
 public class ServletConfig {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ServletConfig.class);
+    private static final ObjectMapper JACKSON_MAPPER = new ObjectMapper();
+    private static final ObjectWriter JACKSON_WRITER = JACKSON_MAPPER.writer();
 
     @Value("${stats.servletPort}")
     private int servletPort;
@@ -31,6 +36,18 @@ public class ServletConfig {
     @Bean
     public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
         return new PropertySourcesPlaceholderConfigurer();
+    }
+
+    @Bean
+    ObjectMapper objectMapper() {
+
+        return JACKSON_MAPPER;
+    }
+
+    @Bean
+    ObjectWriter objectWriter() {
+
+        return JACKSON_WRITER;
     }
 
 }

@@ -6,6 +6,11 @@ import java.util.concurrent.Executors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.google.common.base.Preconditions;
 
 public class Cache {
 
@@ -15,6 +20,9 @@ public class Cache {
 
     private final long duration;
     private final ConcurrentNavigableMap<Long, StatsDto> timestamps2stats;
+
+    @Autowired
+    private ObjectWriter jacksonWriter;
 
     public Cache(long duration) {
 
@@ -26,9 +34,20 @@ public class Cache {
 
     public void update(TransactionDto transaction) {
 
-        if (!this.isObsolete(transaction)) {
-            StatsDto stats = StatsDto.fromTransaction(transaction);
-            timestamps2stats.merge(transaction.getTime(), stats, (stats1, stats2) -> StatsDto.reduce(stats1, stats2));
+        long time = transaction.getTime();
+        try {
+            Preconditions.checkArgument(time < System.currentTimeMillis(),
+                    "Invalid transaction (timestamp refers to the future):",
+                    jacksonWriter.writeValueAsString(transaction));
+            if (!this.isObsolete(transaction)) {
+                StatsDto stats = StatsDto.fromTransaction(transaction);
+                timestamps2stats.merge(time, stats, (stats1, stats2) -> StatsDto.reduce(stats1, stats2));
+                LOGGER.debug("Ingested transaction: {}", jacksonWriter.writeValueAsString(transaction));
+            } else {
+                LOGGER.warn("Ignoring obsolete transaction: {}", jacksonWriter.writeValueAsString(transaction));
+            }
+        } catch (JsonProcessingException e) {
+            LOGGER.error("Exception thrown!", e);
         }
     }
 
